@@ -13,7 +13,7 @@ stand-alone servers such as TrueNAS.
 	* [General](#general)
 		* [upload_and_run_command.sh](#upload_and_run_commandsh)
 		* [upload_and_run_script.sh](#upload_and_run_scriptsh)
-		* [upload_bundle.sh](#upload_bundle.sh)
+		* [upload_bundle.sh](#upload_bundlesh)
 	* [Processes](#processes)
 		* [download_burnin_results.sh](#download_burnin_resultssh)
 		* [download_erase_results.sh](#download_erase_resultssh)

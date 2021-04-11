@@ -52,8 +52,10 @@ system.
 
 ### Prerequisites
 
-* [Utility-Scripts](https://github.com/jhthorp/Utility-Scripts)
-* [Drive-Scripts](https://github.com/jhthorp/Drive-Scripts)
+* [Utility-Scripts](https://github.com/jhthorp/Utility-Scripts) exist at the 
+same directory path
+* [Drive-Scripts](https://github.com/jhthorp/Drive-Scripts) exist at the 
+same directory path
 
 ### Setup
 

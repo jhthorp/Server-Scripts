@@ -56,6 +56,8 @@ system.
 same directory path
 * [Drive-Scripts](https://github.com/jhthorp/Drive-Scripts) exist at the 
 same directory path
+* [Bundler-Scripts](https://github.com/jhthorp/Bundler-Scripts) exist at the 
+same directory path
 
 ### Setup
 
@@ -64,10 +66,12 @@ download, into the same top-level directory path, the following repositories:
 
 * [Utility-Scripts](https://github.com/jhthorp/Utility-Scripts)
 * [Drive-Scripts](https://github.com/jhthorp/Drive-Scripts)
+* [Bundler-Scripts](https://github.com/jhthorp/Bundler-Scripts)
 
 ```
 /path/to/Utility-Scripts
 /path/to/Drive-Scripts
+/path/to/Bundler-Scripts
 /path/to/Server-Scripts
 ```
 
@@ -384,6 +388,8 @@ system.
 of utility scripts.
 * [Drive-Scripts](https://github.com/jhthorp/Drive-Scripts) - A collection 
 of hard drive scripts.
+* [Bundler-Scripts](https://github.com/jhthorp/Bundler-Scripts) - A collection 
+of bundler scripts.
 
 ## Notes
 

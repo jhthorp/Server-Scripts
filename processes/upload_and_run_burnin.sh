@@ -99,7 +99,7 @@ upload_and_run_burnin ()
 
   # Local Variables
   declare -r AUTOMATED_SKIP="auto_skip"
-  declare -r SCRIPT="Utility-Scripts/burnin/burnin_drives.sh"
+  declare -r SCRIPT="Drive-Scripts/burnin/burnin_drives.sh"
   declare -r SCRIPT_PARAMS_DRIVES="\"${drives_override}\" ${zero_drives}"
   declare -r SCRIPT_PARAMS_TMUX="\"${session_suffix}\" ${end_on_detach}"
   declare -r SCRIPT_PARAMS="${SCRIPT_PARAMS_DRIVES} ${SCRIPT_PARAMS_TMUX}"
@@ -109,7 +109,7 @@ upload_and_run_burnin ()
   # Upload and Remotely run a script from the bundle
   echo "Beginning the Burn-In process.."
   upload_and_run_script \
-    "../Utility-Scripts" \
+    "../Drive-Scripts" \
     ${host} \
     ${port} \
     "${remote_user}" \

@@ -52,17 +52,20 @@ system.
 
 ### Prerequisites
 
-* [Utility-Scripts](https://github.com/jhthorp/Utility-Scripts) exist at the 
-same directory path
+* [Utility-Scripts](https://github.com/jhthorp/Utility-Scripts)
+* [Drive-Scripts](https://github.com/jhthorp/Drive-Scripts)
 
 ### Setup
 
 In order to use the scripts within this package, you will need to clone, or 
-download, the [Utility-Scripts](https://github.com/jhthorp/Utility-Scripts) 
-repository into the same top-level directory path.
+download, into the same top-level directory path, the following repositories:
+
+* [Utility-Scripts](https://github.com/jhthorp/Utility-Scripts)
+* [Drive-Scripts](https://github.com/jhthorp/Drive-Scripts)
 
 ```
 /path/to/Utility-Scripts
+/path/to/Drive-Scripts
 /path/to/Server-Scripts
 ```
 
@@ -377,6 +380,8 @@ system.
 
 * [Utility-Scripts](https://github.com/jhthorp/Utility-Scripts) - A collection 
 of utility scripts.
+* [Drive-Scripts](https://github.com/jhthorp/Drive-Scripts) - A collection 
+of hard drive scripts.
 
 ## Notes
 

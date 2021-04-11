@@ -97,7 +97,7 @@ upload_and_run_erase ()
 
   # Local Variables
   declare -r AUTOMATED_SKIP="auto_skip"
-  declare -r SCRIPT="Utility-Scripts/erase/erase_drives.sh"
+  declare -r SCRIPT="Drive-Scripts/erase/erase_drives.sh"
   declare -r SCRIPT_PARAMS_TMUX="\"${session_suffix}\" ${end_on_detach}"
   declare -r SCRIPT_PARAMS="\"${drives_override}\" ${SCRIPT_PARAMS_TMUX}"
   declare -r SCRIPT_PARAMS_AUTO="${AUTOMATED_SKIP} ${SCRIPT_PARAMS}"
@@ -106,7 +106,7 @@ upload_and_run_erase ()
   # Upload and Remotely run a script from the bundle
   echo "Beginning the Erase process.."
   upload_and_run_script \
-    "../Utility-Scripts" \
+    "../Drive-Scripts" \
     ${host} \
     ${port} \
     "${remote_user}" \

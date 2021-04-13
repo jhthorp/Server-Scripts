@@ -87,8 +87,8 @@ the command.
 _Usage_
 
 ```
-[bash] ./upload_and_run_command.sh <srcDir> <host> <port> [remote_user] 
-[command_to_run]
+[bash] ./upload_and_run_command.sh [auto_skip] <srcDir> <host> <port> 
+[remote_user] [command_to_run]
 ```
 
 _Options_
@@ -101,6 +101,7 @@ _Parameters_
 
 |         Parameter         |                   Description                    |
 |           :---:           |                      :---:                       |
+|      Automated Skip       |            Continue without prompting            |
 |     Source Directory      |                 Source directory                 |
 |           Host            |            Host address to connect to            |
 |           Port            |                Port to connect on                |
@@ -113,6 +114,8 @@ _Examples_
 * **./upload_and_run_command.sh** "../TrueNAS-Scripts" 192.168.1.1 22 "root"
 * **./upload_and_run_command.sh** "../TrueNAS-Scripts" 192.168.1.1 22 "root" 
 "pwd"
+* **./upload_and_run_command.sh** "auto_skip" "../TrueNAS-Scripts" 
+192.168.1.1 22 "root" "pwd"
 
 #### upload_and_run_script.sh
 
@@ -122,8 +125,8 @@ the script.
 _Usage_
 
 ```
-[bash] ./upload_and_run_script.sh <srcDir> <host> <port> [remote_user] 
-[script_to_run]
+[bash] ./upload_and_run_script.sh [auto_skip] <srcDir> <host> <port> 
+[remote_user] [script_to_run]
 ```
 
 _Options_
@@ -136,6 +139,7 @@ _Parameters_
 
 |         Parameter         |                   Description                    |
 |           :---:           |                      :---:                       |
+|      Automated Skip       |            Continue without prompting            |
 |     Source Directory      |                 Source directory                 |
 |           Host            |            Host address to connect to            |
 |           Port            |                Port to connect on                |
@@ -148,6 +152,8 @@ _Examples_
 * **./upload_and_run_script.sh** "../TrueNAS-Scripts" 192.168.1.1 22 "root"
 * **./upload_and_run_script.sh** "../TrueNAS-Scripts" 192.168.1.1 22 "root"
 "Utility-Scripts/tmux/start_tmux_session 'session-name'"
+* **./upload_and_run_script.sh** "auto_skip" "../TrueNAS-Scripts" 192.168.1.1 22 
+"root" "Utility-Scripts/tmux/start_tmux_session 'session-name'"
 
 #### upload_bundle.sh
 
@@ -156,7 +162,7 @@ A script to create a scripts bundle and upload it to a server.
 _Usage_
 
 ```
-[bash] ./upload_bundle.sh <srcDir> <host> <port> [remote_user]
+[bash] ./upload_bundle.sh [auto_skip] <srcDir> <host> <port> [remote_user]
 ```
 
 _Options_
@@ -169,6 +175,7 @@ _Parameters_
 
 |         Parameter         |                   Description                    |
 |           :---:           |                      :---:                       |
+|      Automated Skip       |            Continue without prompting            |
 |     Source Directory      |                 Source directory                 |
 |           Host            |            Host address to connect to            |
 |           Port            |                Port to connect on                |
@@ -178,6 +185,7 @@ _Examples_
 
 * **./upload_bundle.sh** "../TrueNAS-Scripts" 192.168.1.1 22
 * **./upload_bundle.sh** "../TrueNAS-Scripts" 192.168.1.1 22 "root"
+* **./upload_bundle.sh** "auto_skip" "../TrueNAS-Scripts" 192.168.1.1 22 "root"
 
 ### Processes
 
@@ -188,7 +196,7 @@ A script to download the output files from a Burn-In process.
 _Usage_
 
 ```
-[bash] ./download_burnin_results.sh <host> <port> <remote_user>
+[bash] ./download_burnin_results.sh [auto_skip] <host> <port> <remote_user>
 ```
 
 _Options_
@@ -201,6 +209,7 @@ _Parameters_
 
 |         Parameter         |                   Description                    |
 |           :---:           |                      :---:                       |
+|      Automated Skip       |            Continue without prompting            |
 |           Host            |            Host address to connect to            |
 |           Port            |                Port to connect on                |
 |        Remote User        |               User to connect with               |
@@ -208,6 +217,7 @@ _Parameters_
 _Examples_
 
 * **./download_burnin_results.sh** 192.168.1.1 22 "root"
+* **./download_burnin_results.sh** "auto_skip" 192.168.1.1 22 "root"
 
 #### download_erase_results.sh
 
@@ -216,7 +226,7 @@ A script to download the output files from an Erase process.
 _Usage_
 
 ```
-[bash] ./download_erase_results.sh <host> <port> <remote_user>
+[bash] ./download_erase_results.sh [auto_skip] <host> <port> <remote_user>
 ```
 
 _Options_
@@ -229,6 +239,7 @@ _Parameters_
 
 |         Parameter         |                   Description                    |
 |           :---:           |                      :---:                       |
+|      Automated Skip       |            Continue without prompting            |
 |           Host            |            Host address to connect to            |
 |           Port            |                Port to connect on                |
 |        Remote User        |               User to connect with               |
@@ -236,6 +247,7 @@ _Parameters_
 _Examples_
 
 * **./download_erase_results.sh** 192.168.1.1 22 "root"
+* **./download_erase_results.sh** "auto_skip" 192.168.1.1 22 "root"
 
 #### upload_and_run_burnin.sh
 
@@ -245,8 +257,8 @@ starting the Burn-In process.
 _Usage_
 
 ```
-[bash] ./upload_and_run_burnin.sh <host> <port> [remote_user] [drives_override] 
-[zero_drives] [session_suffix] [end_on_detach]
+[bash] ./upload_and_run_burnin.sh [auto_skip] <host> <port> [remote_user] 
+[drives_override] [zero_drives] [session_suffix] [end_on_detach]
 ```
 
 _Options_
@@ -259,6 +271,7 @@ _Parameters_
 
 |         Parameter         |                   Description                    |
 |           :---:           |                      :---:                       |
+|      Automated Skip       |            Continue without prompting            |
 |           Host            |            Host address to connect to            |
 |           Port            |                Port to connect on                |
 |        Remote User        |               User to connect with               |
@@ -279,6 +292,8 @@ _Examples_
 "session2"
 * **./upload_and_run_burnin.sh** 192.168.1.1 22 "root" "/dev/da0 /dev/da2" false 
 "s3" true
+* **./upload_and_run_burnin.sh** "auto_skip" 192.168.1.1 22 "root" 
+"/dev/da0 /dev/da2" false "s3" true
 
 #### upload_and_run_erase.sh
 
@@ -288,8 +303,8 @@ starting the Erase process.
 _Usage_
 
 ```
-[bash] ./upload_and_run_erase.sh <host> <port> [remote_user] [drives_override] 
-[session_suffix] [end_on_detach]
+[bash] ./upload_and_run_erase.sh [auto_skip] <host> <port> [remote_user] 
+[drives_override] [session_suffix] [end_on_detach]
 ```
 
 _Options_
@@ -302,6 +317,7 @@ _Parameters_
 
 |         Parameter         |                   Description                    |
 |           :---:           |                      :---:                       |
+|      Automated Skip       |            Continue without prompting            |
 |           Host            |            Host address to connect to            |
 |           Port            |                Port to connect on                |
 |        Remote User        |               User to connect with               |
@@ -319,6 +335,8 @@ _Examples_
 "session2"
 * **./upload_and_run_erase.sh** 192.168.1.1 22 "root" "/dev/da0 /dev/da2" "s3" 
 true
+* **./upload_and_run_erase.sh** "auto_skip" 192.168.1.1 22 "root" 
+"/dev/da0 /dev/da2" "s3" true
 
 ### TrueNAS
 
@@ -329,7 +347,7 @@ A script to create an archive bundle for uploading to a TrueNAS server.
 _Usage_
 
 ```
-[bash] ./create_truenas_bundle.sh [completeBundleName]
+[bash] ./create_truenas_bundle.sh [auto_skip] [completeBundleName]
 ```
 
 _Options_
@@ -342,11 +360,13 @@ _Parameters_
 
 |         Parameter         |                   Description                    |
 |           :---:           |                      :---:                       |
+|      Automated Skip       |            Continue without prompting            |
 |        Bundle Name        |            Name for the output bundle            |
 
 _Examples_
 
 * **./create_truenas_bundle.sh** "TrueNAS"
+* **./create_truenas_bundle.sh** "auto_skip" "TrueNAS"
 
 #### upload_truenas_bundle.sh
 
@@ -355,7 +375,7 @@ A script to create a TrueNAS scripts bundle and upload it to a server.
 _Usage_
 
 ```
-[bash] ./upload_truenas_bundle.sh <host> <port> [remote_user]
+[bash] ./upload_truenas_bundle.sh [auto_skip] <host> <port> [remote_user]
 ```
 
 _Options_
@@ -368,6 +388,7 @@ _Parameters_
 
 |         Parameter         |                   Description                    |
 |           :---:           |                      :---:                       |
+|      Automated Skip       |            Continue without prompting            |
 |           Host            |            Host address to connect to            |
 |           Port            |                Port to connect on                |
 |        Remote User        |               User to connect with               |
@@ -376,6 +397,7 @@ _Examples_
 
 * **./upload_truenas_bundle.sh** 192.168.1.1 22
 * **./upload_truenas_bundle.sh** 192.168.1.1 22 "root"
+* **./upload_truenas_bundle.sh** "auto_skip" 192.168.1.1 22 "root"
 
 ## Deployment
 

@@ -45,22 +45,69 @@ stack_vars[${#stack_vars[@]}]=1 ||
 stack_vars[${#stack_vars[@]}]=0
 
 # Determine the exectuable directory (DIR)
-stack_vars[${#stack_vars[@]}]="${BASH_SOURCE%/*}"
-if [[ ! -d "${stack_vars[${#stack_vars[@]}-1]}" ]]; 
-then 
-  stack_vars[${#stack_vars[@]}-1]="${PWD}"; 
+DIR_SRC="${BASH_SOURCE%/*}"
+if [[ ! -d "${DIR_SRC}" ]];
+then
+  DIR_SRC="${PWD}";
 fi
+
+# Convert any relative paths into absolute paths
+DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
+DIR_SRC=${DIR_SRC%?}
+
+# Copy over the DIR source and remove the temporary variable
+stack_vars[${#stack_vars[@]}]=${DIR_SRC}
+unset DIR_SRC
+
+# Add Functional Aliases
+SOURCING_INVOCATION () { echo "${stack_vars[${#stack_vars[@]}-2]}"; }
+DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 
 ################################################################################
 #                               SCRIPT INCLUDES                                #
 ################################################################################
-. "${stack_vars[${#stack_vars[@]}-1]}/../../Bundler-Scripts/create_bundle.sh"
-. "${stack_vars[${#stack_vars[@]}-1]}/../../Utility-Scripts/ssh/run_command.sh"
-. "${stack_vars[${#stack_vars[@]}-1]}/../../Utility-Scripts/scp/scp_to_remote.sh"
+. "$(DIR)/../../Bundler-Scripts/create_bundle.sh"
+. "$(DIR)/../../Utility-Scripts/ssh/run_command.sh"
+. "$(DIR)/../../Utility-Scripts/scp/scp_to_remote.sh"
 
 ################################################################################
 #                                  FUNCTIONS                                   #
 ################################################################################
+#===============================================================================
+# This function will grab this script's working directory as an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - N/A] N/A
+#
+# OUTPUTS:
+#   N/A - N/A
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+SCRIPT_DIR () {
+  # Determine the exectuable directory (DIR)
+  declare DIR_SRC="${BASH_SOURCE%/*}"
+  if [[ ! -d "${DIR_SRC}" ]];
+  then
+    DIR_SRC="${PWD}";
+  fi
+
+  # Convert any relative paths into absolute paths
+  DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
+  DIR_SRC=${DIR_SRC%?}
+
+  # Copy over the DIR source and remove the temporary variable
+  echo "${DIR_SRC}"
+}
+
 #===============================================================================
 # This function will create a scripts bundle and upload it to a server.
 #
@@ -91,7 +138,7 @@ upload_bundle ()
   declare -r remote_user=${4-root}
 
   # Local Variables
-  declare -r CUR_DIR="${BASH_SOURCE%/*}"
+  declare -r CUR_DIR=$(SCRIPT_DIR)
   declare -r REMOTE_SCRIPTS_DIR="/${remote_user}/_Scripts"
   declare -r RMDIR_SCRIPTS_CMD="rm -rf ${REMOTE_SCRIPTS_DIR}"
   declare -r MKDIR_SCRIPTS_CMD="mkdir ${REMOTE_SCRIPTS_DIR}"
@@ -160,7 +207,7 @@ upload_bundle ()
 #   0 - SUCCESS
 #   Non-Zero - ERROR
 #===============================================================================
-if [ ${stack_vars[${#stack_vars[@]}-2]} = 0 ]; # SOURCING_INVOCATION
+if [ $(SOURCING_INVOCATION) = 0 ];
 then
   # Print a copyright/license header
   cat << EOF

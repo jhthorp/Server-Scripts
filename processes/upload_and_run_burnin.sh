@@ -46,20 +46,67 @@ stack_vars[${#stack_vars[@]}]=1 ||
 stack_vars[${#stack_vars[@]}]=0
 
 # Determine the exectuable directory (DIR)
-stack_vars[${#stack_vars[@]}]="${BASH_SOURCE%/*}"
-if [[ ! -d "${stack_vars[${#stack_vars[@]}-1]}" ]]; 
-then 
-  stack_vars[${#stack_vars[@]}-1]="${PWD}"; 
+DIR_SRC="${BASH_SOURCE%/*}"
+if [[ ! -d "${DIR_SRC}" ]];
+then
+  DIR_SRC="${PWD}";
 fi
+
+# Convert any relative paths into absolute paths
+DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
+DIR_SRC=${DIR_SRC%?}
+
+# Copy over the DIR source and remove the temporary variable
+stack_vars[${#stack_vars[@]}]=${DIR_SRC}
+unset DIR_SRC
+
+# Add Functional Aliases
+SOURCING_INVOCATION () { echo "${stack_vars[${#stack_vars[@]}-2]}"; }
+DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 
 ################################################################################
 #                               SCRIPT INCLUDES                                #
 ################################################################################
-. "${stack_vars[${#stack_vars[@]}-1]}/../general/upload_and_run_script.sh"
+. "$(DIR)/../general/upload_and_run_script.sh"
 
 ################################################################################
 #                                  FUNCTIONS                                   #
 ################################################################################
+#===============================================================================
+# This function will grab this script's working directory as an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - N/A] N/A
+#
+# OUTPUTS:
+#   N/A - N/A
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+SCRIPT_DIR () {
+  # Determine the exectuable directory (DIR)
+  declare DIR_SRC="${BASH_SOURCE%/*}"
+  if [[ ! -d "${DIR_SRC}" ]];
+  then
+    DIR_SRC="${PWD}";
+  fi
+
+  # Convert any relative paths into absolute paths
+  DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
+  DIR_SRC=${DIR_SRC%?}
+
+  # Copy over the DIR source and remove the temporary variable
+  echo "${DIR_SRC}"
+}
+
 #===============================================================================
 # This function will create a Utility scripts bundle and upload it to a server 
 # before starting the Burn-In process.
@@ -98,6 +145,7 @@ upload_and_run_burnin ()
   declare -r end_on_detach=${7-false}
 
   # Local Variables
+  declare -r CUR_DIR=$(SCRIPT_DIR)
   declare -r AUTOMATED_SKIP="auto_skip"
   declare -r SCRIPT="Drive-Scripts/burnin/burnin_drives.sh"
   declare -r SCRIPT_PARAMS_DRIVES="\"${drives_override}\" ${zero_drives}"
@@ -109,7 +157,7 @@ upload_and_run_burnin ()
   # Upload and Remotely run a script from the bundle
   echo "Beginning the Burn-In process.."
   upload_and_run_script \
-    "../Drive-Scripts" \
+    "${CUR_DIR}/../Drive-Scripts" \
     ${host} \
     ${port} \
     "${remote_user}" \
@@ -141,7 +189,7 @@ upload_and_run_burnin ()
 #   0 - SUCCESS
 #   Non-Zero - ERROR
 #===============================================================================
-if [ ${stack_vars[${#stack_vars[@]}-2]} = 0 ]; # SOURCING_INVOCATION
+if [ $(SOURCING_INVOCATION) = 0 ];
 then
   # Print a copyright/license header
   cat << EOF

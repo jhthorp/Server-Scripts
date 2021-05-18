@@ -45,20 +45,67 @@ stack_vars[${#stack_vars[@]}]=1 ||
 stack_vars[${#stack_vars[@]}]=0
 
 # Determine the exectuable directory (DIR)
-stack_vars[${#stack_vars[@]}]="${BASH_SOURCE%/*}"
-if [[ ! -d "${stack_vars[${#stack_vars[@]}-1]}" ]]; 
-then 
-  stack_vars[${#stack_vars[@]}-1]="${PWD}"; 
+DIR_SRC="${BASH_SOURCE%/*}"
+if [[ ! -d "${DIR_SRC}" ]];
+then
+  DIR_SRC="${PWD}";
 fi
+
+# Convert any relative paths into absolute paths
+DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
+DIR_SRC=${DIR_SRC%?}
+
+# Copy over the DIR source and remove the temporary variable
+stack_vars[${#stack_vars[@]}]=${DIR_SRC}
+unset DIR_SRC
+
+# Add Functional Aliases
+SOURCING_INVOCATION () { echo "${stack_vars[${#stack_vars[@]}-2]}"; }
+DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 
 ################################################################################
 #                               SCRIPT INCLUDES                                #
 ################################################################################
-. "${stack_vars[${#stack_vars[@]}-1]}/../../Bundler-Scripts/create_bundle.sh"
+. "$(DIR)/../../Bundler-Scripts/create_bundle.sh"
 
 ################################################################################
 #                                  FUNCTIONS                                   #
 ################################################################################
+#===============================================================================
+# This function will grab this script's working directory as an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - N/A] N/A
+#
+# OUTPUTS:
+#   N/A - N/A
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+SCRIPT_DIR () {
+  # Determine the exectuable directory (DIR)
+  declare DIR_SRC="${BASH_SOURCE%/*}"
+  if [[ ! -d "${DIR_SRC}" ]];
+  then
+    DIR_SRC="${PWD}";
+  fi
+
+  # Convert any relative paths into absolute paths
+  DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
+  DIR_SRC=${DIR_SRC%?}
+
+  # Copy over the DIR source and remove the temporary variable
+  echo "${DIR_SRC}"
+}
+
 #===============================================================================
 # This function will create an archive bundle for uploading to a TrueNAS server.
 #
@@ -81,8 +128,11 @@ fi
 create_truenas_bundle ()
 {
   declare -r completeBundleName=${1-"TrueNAS"}
+
+  declare -r CUR_DIR=$(SCRIPT_DIR)
+
   $(create_bundle \
-    "../TrueNAS-Scripts" \
+    "${CUR_DIR}/../TrueNAS-Scripts" \
     "${completeBundleName}" \
   )
 }
@@ -112,7 +162,7 @@ create_truenas_bundle ()
 #   0 - SUCCESS
 #   Non-Zero - ERROR
 #===============================================================================
-if [ ${stack_vars[${#stack_vars[@]}-2]} = 0 ]; # SOURCING_INVOCATION
+if [ $(SOURCING_INVOCATION) = 0 ];
 then
   # Print a copyright/license header
   cat << EOF

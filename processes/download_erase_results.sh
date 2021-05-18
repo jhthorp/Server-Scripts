@@ -45,20 +45,67 @@ stack_vars[${#stack_vars[@]}]=1 ||
 stack_vars[${#stack_vars[@]}]=0
 
 # Determine the exectuable directory (DIR)
-stack_vars[${#stack_vars[@]}]="${BASH_SOURCE%/*}"
-if [[ ! -d "${stack_vars[${#stack_vars[@]}-1]}" ]]; 
-then 
-  stack_vars[${#stack_vars[@]}-1]="${PWD}"; 
+DIR_SRC="${BASH_SOURCE%/*}"
+if [[ ! -d "${DIR_SRC}" ]];
+then
+  DIR_SRC="${PWD}";
 fi
+
+# Convert any relative paths into absolute paths
+DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
+DIR_SRC=${DIR_SRC%?}
+
+# Copy over the DIR source and remove the temporary variable
+stack_vars[${#stack_vars[@]}]=${DIR_SRC}
+unset DIR_SRC
+
+# Add Functional Aliases
+SOURCING_INVOCATION () { echo "${stack_vars[${#stack_vars[@]}-2]}"; }
+DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 
 ################################################################################
 #                               SCRIPT INCLUDES                                #
 ################################################################################
-. "${stack_vars[${#stack_vars[@]}-1]}/../../Utility-Scripts/scp/scp_from_remote.sh"
+. "$(DIR)/../../Utility-Scripts/scp/scp_from_remote.sh"
 
 ################################################################################
 #                                  FUNCTIONS                                   #
 ################################################################################
+#===============================================================================
+# This function will grab this script's working directory as an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - N/A] N/A
+#
+# OUTPUTS:
+#   N/A - N/A
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+SCRIPT_DIR () {
+  # Determine the exectuable directory (DIR)
+  declare DIR_SRC="${BASH_SOURCE%/*}"
+  if [[ ! -d "${DIR_SRC}" ]];
+  then
+    DIR_SRC="${PWD}";
+  fi
+
+  # Convert any relative paths into absolute paths
+  DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
+  DIR_SRC=${DIR_SRC%?}
+
+  # Copy over the DIR source and remove the temporary variable
+  echo "${DIR_SRC}"
+}
+
 #===============================================================================
 # This function will download the output files from an Erase process.
 #
@@ -86,12 +133,14 @@ download_erase_results ()
   declare -r port="${2}"
   declare -r remote_user="${3}"
 
+  declare -r CUR_DIR=$(SCRIPT_DIR)
+
   scp_from_remote \
     "${host}" \
     "${port}" \
     "${remote_user}" \
     "/${remote_user}/_Scripts/_dev_*.txt" \
-    "../_erase_results"
+    "${CUR_DIR}/../_erase_results"
 }
 
 ################################################################################
@@ -119,7 +168,7 @@ download_erase_results ()
 #   0 - SUCCESS
 #   Non-Zero - ERROR
 #===============================================================================
-if [ ${stack_vars[${#stack_vars[@]}-2]} = 0 ]; # SOURCING_INVOCATION
+if [ $(SOURCING_INVOCATION) = 0 ];
 then
   # Print a copyright/license header
   cat << EOF

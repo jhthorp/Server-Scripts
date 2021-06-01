@@ -74,6 +74,36 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #                                  FUNCTIONS                                   #
 ################################################################################
 #===============================================================================
+# This function will convert a relative path into an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - relPath] A relative path
+#
+# OUTPUTS:
+#   absPath - The absolute path
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+REL_TO_ABS_PATH () {
+  local relPath="${1}"
+
+  # Convert any relative paths into absolute paths
+  local TMP_ABS_PATH=$(cd ${relPath}; printf %s. "$PWD")
+  TMP_ABS_PATH=${TMP_ABS_PATH%?}
+
+  # Return the absolute path
+  echo "${TMP_ABS_PATH}"
+}
+
+#===============================================================================
 # This function will create a scripts bundle and upload it to a server
 # before executing the command.
 #
@@ -99,16 +129,16 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #===============================================================================
 upload_and_run_command ()
 {
-  declare -r srcDir=${1}
-  declare -r host="${2}"
-  declare -r port="${3}"
-  declare -r remote_user=${4-root}
-  declare -r command_to_run=${5-"echo 'Hello World'"}
+  local srcDir=$(REL_TO_ABS_PATH ${1})
+  local host="${2}"
+  local port="${3}"
+  local remote_user=${4-root}
+  local command_to_run=${5-"echo 'Hello World'"}
 
   # Create and upload the bundle
   echo "Uploading the new scripts bundle..."
   upload_bundle \
-    ${srcDir} \
+    "$(REL_TO_ABS_PATH ${srcDir})" \
     ${host} \
     ${port} \
     "${remote_user}"

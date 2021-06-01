@@ -72,6 +72,36 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #                                  FUNCTIONS                                   #
 ################################################################################
 #===============================================================================
+# This function will convert a relative path into an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - relPath] A relative path
+#
+# OUTPUTS:
+#   absPath - The absolute path
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+REL_TO_ABS_PATH () {
+  local relPath="${1}"
+
+  # Convert any relative paths into absolute paths
+  local TMP_ABS_PATH=$(cd ${relPath}; printf %s. "$PWD")
+  TMP_ABS_PATH=${TMP_ABS_PATH%?}
+
+  # Return the absolute path
+  echo "${TMP_ABS_PATH}"
+}
+
+#===============================================================================
 # This function will grab this script's working directory as an absolute path.
 #
 # GLOBALS / SIDE EFFECTS:
@@ -84,7 +114,7 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #   [1 - N/A] N/A
 #
 # OUTPUTS:
-#   N/A - N/A
+#   scriptDir - The absolute script directory path
 #
 # RETURN:
 #   0 - SUCCESS
@@ -92,18 +122,13 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #===============================================================================
 SCRIPT_DIR () {
   # Determine the exectuable directory (DIR)
-  declare DIR_SRC="${BASH_SOURCE%/*}"
-  if [[ ! -d "${DIR_SRC}" ]];
+  local TMP_DIR_SRC="${1}"
+  if [[ ! -d "${TMP_DIR_SRC}" ]];
   then
-    DIR_SRC="${PWD}";
+    TMP_DIR_SRC="${PWD}";
   fi
 
-  # Convert any relative paths into absolute paths
-  DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
-  DIR_SRC=${DIR_SRC%?}
-
-  # Copy over the DIR source and remove the temporary variable
-  echo "${DIR_SRC}"
+  echo $(REL_TO_ABS_PATH "${TMP_DIR_SRC}")
 }
 
 #===============================================================================
@@ -127,12 +152,13 @@ SCRIPT_DIR () {
 #===============================================================================
 create_truenas_bundle ()
 {
-  declare -r completeBundleName=${1-"TrueNAS"}
-
-  declare -r CUR_DIR=$(SCRIPT_DIR)
+  local completeBundleName=${1-"TrueNAS"}
+  
+  local SCRIPT_SRC="${BASH_SOURCE%/*}"
+  local CUR_DIR=$(SCRIPT_DIR ${SCRIPT_SRC})
 
   $(create_bundle \
-    "${CUR_DIR}/../TrueNAS-Scripts" \
+    "$(REL_TO_ABS_PATH "${CUR_DIR}/../../TrueNAS-Scripts")" \
     "${completeBundleName}" \
   )
 }

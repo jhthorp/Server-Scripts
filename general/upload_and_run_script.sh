@@ -73,6 +73,36 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #                                  FUNCTIONS                                   #
 ################################################################################
 #===============================================================================
+# This function will convert a relative path into an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - relPath] A relative path
+#
+# OUTPUTS:
+#   absPath - The absolute path
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+REL_TO_ABS_PATH () {
+  local relPath="${1}"
+
+  # Convert any relative paths into absolute paths
+  local TMP_ABS_PATH=$(cd ${relPath}; printf %s. "$PWD")
+  TMP_ABS_PATH=${TMP_ABS_PATH%?}
+
+  # Return the absolute path
+  echo "${TMP_ABS_PATH}"
+}
+
+#===============================================================================
 # This function will create a scripts bundle and upload it to a server 
 # before starting the script.
 #
@@ -98,19 +128,19 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #===============================================================================
 upload_and_run_script ()
 {
-  declare -r srcDir=${1}
-  declare -r host="${2}"
-  declare -r port="${3}"
-  declare -r remote_user=${4-root}
-  declare -r script_to_run=${5-""}
+  local srcDir=$(REL_TO_ABS_PATH ${1})
+  local host="${2}"
+  local port="${3}"
+  local remote_user=${4-root}
+  local script_to_run=${5-""}
 
   # Local Variables
-  declare -r REMOTE_SCRIPTS_DIR="/${remote_user}/_Scripts"
-  declare -r SCRIPT_CMD="cd ${REMOTE_SCRIPTS_DIR} && bash ./${script_to_run}"
+  local REMOTE_SCRIPTS_DIR="/${remote_user}/_Scripts"
+  local SCRIPT_CMD="cd ${REMOTE_SCRIPTS_DIR} && bash ./${script_to_run}"
 
   # Remotely run a command from the bundle
   upload_and_run_command \
-    ${srcDir} \
+    "$(REL_TO_ABS_PATH ${srcDir})" \
     ${host} \
     ${port} \
     "${remote_user}" \

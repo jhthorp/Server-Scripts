@@ -73,6 +73,36 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #                                  FUNCTIONS                                   #
 ################################################################################
 #===============================================================================
+# This function will convert a relative path into an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - relPath] A relative path
+#
+# OUTPUTS:
+#   absPath - The absolute path
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+REL_TO_ABS_PATH () {
+  local relPath="${1}"
+
+  # Convert any relative paths into absolute paths
+  local TMP_ABS_PATH=$(cd ${relPath}; printf %s. "$PWD")
+  TMP_ABS_PATH=${TMP_ABS_PATH%?}
+
+  # Return the absolute path
+  echo "${TMP_ABS_PATH}"
+}
+
+#===============================================================================
 # This function will grab this script's working directory as an absolute path.
 #
 # GLOBALS / SIDE EFFECTS:
@@ -85,7 +115,7 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #   [1 - N/A] N/A
 #
 # OUTPUTS:
-#   N/A - N/A
+#   scriptDir - The absolute script directory path
 #
 # RETURN:
 #   0 - SUCCESS
@@ -93,18 +123,13 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #===============================================================================
 SCRIPT_DIR () {
   # Determine the exectuable directory (DIR)
-  declare DIR_SRC="${BASH_SOURCE%/*}"
-  if [[ ! -d "${DIR_SRC}" ]];
+  local TMP_DIR_SRC="${1}"
+  if [[ ! -d "${TMP_DIR_SRC}" ]];
   then
-    DIR_SRC="${PWD}";
+    TMP_DIR_SRC="${PWD}";
   fi
 
-  # Convert any relative paths into absolute paths
-  DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
-  DIR_SRC=${DIR_SRC%?}
-
-  # Copy over the DIR source and remove the temporary variable
-  echo "${DIR_SRC}"
+  echo $(REL_TO_ABS_PATH "${TMP_DIR_SRC}")
 }
 
 #===============================================================================
@@ -135,26 +160,27 @@ SCRIPT_DIR () {
 #===============================================================================
 upload_and_run_erase ()
 {
-  declare -r host="${1}"
-  declare -r port="${2}"
-  declare -r remote_user=${3-root}
-  declare -r drives_override=${4-null}
-  declare -r session_suffix=${5-null}
-  declare -r end_on_detach=${6-false}
+  local host="${1}"
+  local port="${2}"
+  local remote_user=${3-root}
+  local drives_override=${4-null}
+  local session_suffix=${5-null}
+  local end_on_detach=${6-false}
 
   # Local Variables
-  declare -r CUR_DIR=$(SCRIPT_DIR)
-  declare -r AUTOMATED_SKIP="auto_skip"
-  declare -r SCRIPT="Drive-Scripts/erase/erase_drives.sh"
-  declare -r SCRIPT_PARAMS_TMUX="\"${session_suffix}\" ${end_on_detach}"
-  declare -r SCRIPT_PARAMS="\"${drives_override}\" ${SCRIPT_PARAMS_TMUX}"
-  declare -r SCRIPT_PARAMS_AUTO="${AUTOMATED_SKIP} ${SCRIPT_PARAMS}"
-  declare -r SCRIPT_CMD="${SCRIPT} ${SCRIPT_PARAMS_AUTO}"
+  local SCRIPT_SRC="${BASH_SOURCE%/*}"
+  local CUR_DIR=$(SCRIPT_DIR ${SCRIPT_SRC})
+  local AUTOMATED_SKIP="auto_skip"
+  local SCRIPT="Drive-Scripts/erase/erase_drives.sh"
+  local SCRIPT_PARAMS_TMUX="\"${session_suffix}\" ${end_on_detach}"
+  local SCRIPT_PARAMS="\"${drives_override}\" ${SCRIPT_PARAMS_TMUX}"
+  local SCRIPT_PARAMS_AUTO="${AUTOMATED_SKIP} ${SCRIPT_PARAMS}"
+  local SCRIPT_CMD="${SCRIPT} ${SCRIPT_PARAMS_AUTO}"
 
   # Upload and Remotely run a script from the bundle
   echo "Beginning the Erase process.."
   upload_and_run_script \
-    "${CUR_DIR}/../Drive-Scripts" \
+    "$(REL_TO_ABS_PATH "${CUR_DIR}/../../Drive-Scripts")" \
     ${host} \
     ${port} \
     "${remote_user}" \

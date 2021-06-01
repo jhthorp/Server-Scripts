@@ -72,6 +72,66 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #                                  FUNCTIONS                                   #
 ################################################################################
 #===============================================================================
+# This function will convert a relative path into an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - relPath] A relative path
+#
+# OUTPUTS:
+#   absPath - The absolute path
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+REL_TO_ABS_PATH () {
+  local relPath="${1}"
+
+  # Convert any relative paths into absolute paths
+  local TMP_ABS_PATH=$(cd ${relPath}; printf %s. "$PWD")
+  TMP_ABS_PATH=${TMP_ABS_PATH%?}
+
+  # Return the absolute path
+  echo "${TMP_ABS_PATH}"
+}
+
+#===============================================================================
+# This function will grab this script's working directory as an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - N/A] N/A
+#
+# OUTPUTS:
+#   scriptDir - The absolute script directory path
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+SCRIPT_DIR () {
+  # Determine the exectuable directory (DIR)
+  local TMP_DIR_SRC="${1}"
+  if [[ ! -d "${TMP_DIR_SRC}" ]];
+  then
+    TMP_DIR_SRC="${PWD}";
+  fi
+
+  echo $(REL_TO_ABS_PATH "${TMP_DIR_SRC}")
+}
+
+#===============================================================================
 # This function will create a TrueNAS scripts bundle and upload it to a server.
 #
 # GLOBALS / SIDE EFFECTS:
@@ -94,14 +154,17 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #===============================================================================
 upload_truenas_bundle ()
 {
-  declare -r host="${1}"
-  declare -r port="${2}"
-  declare -r remote_user=${3-root}
+  local host="${1}"
+  local port="${2}"
+  local remote_user=${3-root}
+
+  local SCRIPT_SRC="${BASH_SOURCE%/*}"
+  local CUR_DIR=$(SCRIPT_DIR ${SCRIPT_SRC})
 
   # Create and upload the bundle
   echo "Uploading the new scripts bundle..."
   upload_bundle \
-    "../TrueNAS-Scripts" \
+    $(REL_TO_ABS_PATH "${CUR_DIR}/../TrueNAS-Scripts") \
     ${host} \
     ${port} \
     "${remote_user}"

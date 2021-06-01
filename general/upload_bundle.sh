@@ -74,6 +74,36 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #                                  FUNCTIONS                                   #
 ################################################################################
 #===============================================================================
+# This function will convert a relative path into an absolute path.
+#
+# GLOBALS / SIDE EFFECTS:
+#   N_A - N/A
+#
+# OPTIONS:
+#   [-na] N/A
+#
+# ARGUMENTS:
+#   [1 - relPath] A relative path
+#
+# OUTPUTS:
+#   absPath - The absolute path
+#
+# RETURN:
+#   0 - SUCCESS
+#   Non-Zero - ERROR
+#===============================================================================
+REL_TO_ABS_PATH () {
+  local relPath="${1}"
+
+  # Convert any relative paths into absolute paths
+  local TMP_ABS_PATH=$(cd ${relPath}; printf %s. "$PWD")
+  TMP_ABS_PATH=${TMP_ABS_PATH%?}
+
+  # Return the absolute path
+  echo "${TMP_ABS_PATH}"
+}
+
+#===============================================================================
 # This function will grab this script's working directory as an absolute path.
 #
 # GLOBALS / SIDE EFFECTS:
@@ -86,7 +116,7 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #   [1 - N/A] N/A
 #
 # OUTPUTS:
-#   N/A - N/A
+#   scriptDir - The absolute script directory path
 #
 # RETURN:
 #   0 - SUCCESS
@@ -94,18 +124,13 @@ DIR () { echo "${stack_vars[${#stack_vars[@]}-1]}"; }
 #===============================================================================
 SCRIPT_DIR () {
   # Determine the exectuable directory (DIR)
-  declare DIR_SRC="${BASH_SOURCE%/*}"
-  if [[ ! -d "${DIR_SRC}" ]];
+  local TMP_DIR_SRC="${1}"
+  if [[ ! -d "${TMP_DIR_SRC}" ]];
   then
-    DIR_SRC="${PWD}";
+    TMP_DIR_SRC="${PWD}";
   fi
 
-  # Convert any relative paths into absolute paths
-  DIR_SRC=$(cd ${DIR_SRC}; printf %s. "$PWD")
-  DIR_SRC=${DIR_SRC%?}
-
-  # Copy over the DIR source and remove the temporary variable
-  echo "${DIR_SRC}"
+  echo $(REL_TO_ABS_PATH "${TMP_DIR_SRC}")
 }
 
 #===============================================================================
@@ -132,24 +157,29 @@ SCRIPT_DIR () {
 #===============================================================================
 upload_bundle ()
 {
-  declare -r srcDir=${1}
-  declare -r host="${2}"
-  declare -r port="${3}"
-  declare -r remote_user=${4-root}
+  local srcDir=$(REL_TO_ABS_PATH ${1})
+  local host="${2}"
+  local port="${3}"
+  local remote_user=${4-root}
 
   # Local Variables
-  declare -r CUR_DIR=$(SCRIPT_DIR)
-  declare -r REMOTE_SCRIPTS_DIR="/${remote_user}/_Scripts"
-  declare -r RMDIR_SCRIPTS_CMD="rm -rf ${REMOTE_SCRIPTS_DIR}"
-  declare -r MKDIR_SCRIPTS_CMD="mkdir ${REMOTE_SCRIPTS_DIR}"
-  declare -r CD_SCRIPTS_CMD="cd ${REMOTE_SCRIPTS_DIR}"
-  declare -r RM_SCRIPTS_CMD="${RMDIR_SCRIPTS_CMD} && ${MKDIR_SCRIPTS_CMD}"
-  declare -r UNZIP_SCRIPTS_CMD="${CD_SCRIPTS_CMD} && unzip -q ./Scripts.zip"
+  local SCRIPT_SRC="${BASH_SOURCE%/*}"
+  local CUR_DIR=$(SCRIPT_DIR ${SCRIPT_SRC})
+  local REMOTE_SCRIPTS_DIR="/${remote_user}/_Scripts"
+  local RMDIR_SCRIPTS_CMD="rm -rf ${REMOTE_SCRIPTS_DIR}"
+  local MKDIR_SCRIPTS_CMD="mkdir ${REMOTE_SCRIPTS_DIR}"
+  local CD_SCRIPTS_CMD="cd ${REMOTE_SCRIPTS_DIR}"
+  local RM_SCRIPTS_CMD="${RMDIR_SCRIPTS_CMD} && ${MKDIR_SCRIPTS_CMD}"
+  local CLEANUP_TMP_CMD="mv ./Scripts/* . && rm -rf ./Scripts"
+  local CLEANUP_SCRIPTS_CMD="rm -f ./Scripts.zip"
+  local CLEANUP_CMD="${CLEANUP_TMP_CMD} && ${CLEANUP_SCRIPTS_CMD}"
+  local UNZIP_SCRIPTS_CMD="unzip -q ./Scripts.zip && ${CLEANUP_CMD}"
+  local FULL_UNZIP_SCRIPTS_CMD="${CD_SCRIPTS_CMD} && ${UNZIP_SCRIPTS_CMD}"
 
   # Create the bundle
   echo "Creating the bundle..."
   $(create_bundle \
-    ${srcDir} \
+    "$(REL_TO_ABS_PATH "${srcDir}")" \
     "Scripts" \
   )  
 
@@ -168,7 +198,7 @@ upload_bundle ()
     ${host} \
     ${port} \
     "${remote_user}" \
-    "${CUR_DIR}/../_bundles/Scripts.zip" \
+    "$(REL_TO_ABS_PATH "${CUR_DIR}/../../_bundles")/Scripts.zip" \
     "${REMOTE_SCRIPTS_DIR}/Scripts.zip" \
   )
 
@@ -178,7 +208,7 @@ upload_bundle ()
     ${host} \
     ${port} \
     "${remote_user}" \
-    "${UNZIP_SCRIPTS_CMD}" \
+    "${FULL_UNZIP_SCRIPTS_CMD}" \
   )
 }
 

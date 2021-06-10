@@ -160,13 +160,17 @@ download_erase_results ()
 
   local SCRIPT_SRC="${BASH_SOURCE%/*}"
   local CUR_DIR=$(SCRIPT_DIR ${SCRIPT_SRC})
+  local results_dir="${CUR_DIR}/../../_erase_results"
+
+  mkdir \
+    -p ${results_dir}
 
   scp_from_remote \
     "${host}" \
     "${port}" \
     "${remote_user}" \
     "/${remote_user}/_Scripts/_dev_*.txt" \
-    "$(REL_TO_ABS_PATH "${CUR_DIR}/../_erase_results")"
+    "$(REL_TO_ABS_PATH ${results_dir})"
 }
 
 ################################################################################
